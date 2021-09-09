@@ -9,7 +9,7 @@
 - 화살표(->) 연산자
 - 3항 연산자
 - 연산자 우선 순위
-- (optional) Java 13. switch 연산자
+- (optional) Java 12. switch 연산자
 
 ___
 ___
@@ -41,7 +41,9 @@ public class MyClass {
 }
 ```
 
-### 1-2. 증감 연산자
+### 1-2. 비트 연산자
+
+### 1-3. 증감 연산자
 증감 연산자는 변수값을  1씩 증가 혹은 감소시킬 때 사용합니다. 증감 연산자는 연산자의 위치에 따라 연산이 실행되는 시점이 달라집니다.
 
 |연산자|예시|설명|
@@ -92,7 +94,7 @@ public class MyClass {
 |전위|값이 참조되기 전에 증가시킨다.|
 |후위|값이 참조된 이후 증가시킨다.|
 
-### 1-3. 비교 연산자(관계 연산자)
+### 1-4. 비교 연산자(관계 연산자)
 비교 연산자는 계산식의 결과가 참인지 거짓인지 판단할 때 사용하는 연산자입니다. 
 
 #### 대소비교 연산자
@@ -109,7 +111,7 @@ public class MyClass {
 |==|a == b|a와 b가 같은 값인지 판단|
 |!=|a != b|a와 b가 다른 값인지 판단|
 
-### 1-4. 논리 연산자
+### 1-5. 논리 연산자
 비교 연산자는 단 하나의 상황에 대해서만 논리적인 판단의 값을 얻을 수 있습니다. 두 가지 이상의 상황(a는 10보다 크거나 5보다는 작다)에 대해서 논리적인 판단이 필요할 땐 논리 연산자를 사용해야 합니다.
 
 #### AND 연산자
@@ -161,7 +163,26 @@ public class MyClass{
 
 위의 출력값도 모두 true입니다. |의 경우 height > 160가 true여도 뒤의 조건식을 실행하지만, ||의 경우 이미 첫번째 조건만으로 true를 만족하므로 OR 연산을 종료합니다.
 
-## 1-5. instanceof 연산자
+```java
+public class MyClass {
+
+    public static void main(String[] args) {
+        int a = 10;
+        int b = 20;
+
+        if (a++ == 10 || b++ == 20) {
+            System.out.println("Hello");
+        }
+
+        System.out.println("a = " + a);
+        System.out.println("b = " + b);
+    }
+}
+```
+
+위 코드의 출력값은 어떻게 될까요? a++ == 10 은 true입니다. ||연산자 이므로 두번째 조건식은 확인하지 않습니다. 따라서 a는 11, b는 20 그대로입니다.
+
+### 1-6. instanceof 연산자
 instanceof는 참조형 변수의 타입을 확인하는 연산자입니다. 형 변환 가능여부를 확인해 true, false값을 반환합니다. 주로 상속 관계에서 부모 객체인지 자식 객체인지 사용됩니다. 사용 방법은 다음과 같습니다.
 
 > **참조 변수 instanceof 참조 타입**
@@ -182,6 +203,106 @@ public class MyClass {
 
 String 타입의 text는 String이므로 true, myClass 또한 MyClass의 인스턴스이므로 true입니다. 상속관계에서는 a instanceof B가 true일 경우엔 (B) a 로 형변환이 가능합니다.
 
+### 1-7. assignment(=) operator
+assignment(=)는 할당 연산자로 변수에 값을 할당할 때 사용합니다. 대입 연산자로고도 합니다. 할당 연산자는 연산자의 우선순위 중 가장 낮기 때문에 연산식에서 가장 마지막에 수행됩니다.
+
+```java
+public class MyClass {
+
+    public static void main(String[] args){
+        int a = 7;
+        String b = "Hello"
+    }
+}
+```
+
+변수 a에 값 7을, 변수 b에 문자열 Hello를 할당한 코드입니다. 여기서 왼쪽 피연산자를 lvalue, 오른쪽 피연산자를 rvalue라고 합니다. rvalue에는 리터럴이나 변수 모두 위치할 수 있지만, lvalue에는 오직 변수만 가능합니다.
+
+그리고 할당 연산자의 연산 방향은 오른쪽부터 왼쪽으로 진행됩니다.
+```java
+public class MyClass {
+
+    public static void main(String[] args) {
+        int a = 0;
+        int b = 0;
+
+        a = b = 7;
+        Systm.out.println(a);
+        System.outprintln(b);
+    }
+}
+```
+
+위의 출력값은 어떻게 나올까요? 연산 순서는 오른쪽부터 7을 b에 할당하고 b를 a에 할당합니다. 따라서 b와 a 모두 7입니다.
+
+#### 복합할당연산자
+할당연산자와 다른 연산자와 결합된 연산자를 복합할당연산자(op=)라고 부릅니다. 두 연산자 간에는 무조건 공백이 없어야 합니다.
+
+|복합할당연산자|예시|
+|:-:|:-:|
+|+=|i = i + 3;|
+|-=|i = i - 3;|
+|*=|i = i * 10;|
+|/=|i = i /= 10;|
+|%=|i = i %= 2;|
+|<<=|i = i <<= 3;|
+|>>=|i = i >>= 3;|
+|&=|i = i & 3;|
+|^=|i = i ^ 3;|
+|\|=| i = i \| 3;|
+
+### 1-8. 삼항 연산자
+삼항 연산자는 조건식의 결과에 따라서 결과값이 다른 연산자입니다. if else문을 간략히 표현할 수 있고 개인적으로 가독성이 좋아서 좋아하는 연산자입니다. 
+
+> **조건식 ? 식1 : 식2**
+
+조건식의 결과가 true일 경우 식1을, false일 경우 식2를 반환합니다.
+
+```java
+public class MyClass{
+
+    public static void main(String[] args) {
+        int a = 10;
+        String message = "";
+
+        message = a > 5 ? "yes" : "no";
+        System.out.prinln(message);
+    }
+}
+```
+
+조건식의 결과가 true이므로 message에는 "yes"가 할당됩니다.
+
+### 1-9. 화살표(->) 연산자
+화살표 연산자는 JDK 1.8버전부터 추가된 람다식에서 사용되는 연산자입니다. 추후 람다식을 공부할 때 자세히 다루겠습니다.
+
+### 1-10. switch 연산자
+swith 연산자는 조건식의 결과값에 해당하는 case문을 실행하는 연산자입니다. 
+
+```java
+public class MyClass {
+
+    public static void main(String[] args) {
+        int month = 7;
+        String season = "";
+
+        switch (month) {
+            case 3, 4, 5 -> season = "Spring";
+            case 6, 7, 8 -> season = "Summer";
+            case 9, 10, 11 -> season = "Fall";
+            case 12, 1, 2 -> season = "Winter";
+            default -> season = "해당하는 월이 없습니다.";
+        }
+
+        System.out.println("season = " + season);
+    }
+}
+```
+
+month의 값에 해당하는 case문으로 이동해서 화살표 오른쪽의 문장을 실행하며, 해당하는 case문이 없을 경우, default문을 실행합니다.
+
+### 1-11. 연산자 우선순위
+연산자의 종류는 많습니다. 모든 연산자의 우선순위를 외우기 보다는 이 연산자가 이 연산자보다 우선순위가 높다 혹은 적절히 소괄호를 이용해가면서 조건식을 작성하는 것이 좋아보입니다.
 ___
 
 참고 : [처음 해보는 자바 프로그래밍](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=179702789), [자바의 정석](https://www.aladin.co.kr/shop/wproduct.aspx?ItemId=76083001)
