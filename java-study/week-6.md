@@ -68,6 +68,7 @@ extends 키워드를 사용함으로써 Child 클래스는 부모 클래스인 P
 
  ### 헷갈리는 오버라이딩과 오버로딩
  오버라이딩과 오버로딩은 어감상 많이 헷갈립니다. 하지만 이들이 의미하는 바는 전혀 비슷하지 않습니다. 오버로딩은 **추가**의 개념입니다. 메소드 이름만 같고 시그니처가 다른 메소드들이 추가되는 것이 오버로딩이고, 상속받은 내용을 **변경**하는 것이 오버라이딩입니다.
+ 
 
 ## 3. super 키워드
 super 키워드는 자식 클래스에서 부모 클래스로부터 상속받은 멤버를 참조하는데 사용되는 참조변수입니다. 동일 클래스에서 멤버변수와 지역변수의 이름이 같을 때 this 키워드를 통해 이를 구별했듯이, super 키워드는 자식 클래스의 멤버와 부모 클래스의 멤버의 이름이 같을 때 super를 통해 구별합니다.
@@ -180,9 +181,20 @@ public abstract class Animal {
 
 public class Cat extends Animal {
 
+    private String species;
+
     @Override
     public void eat() {
         System.out.println(this.name + "이 먹이를 먹습니다.");
+    }
+}
+
+public class Zoo {
+
+    public static void main(String[] args) {
+        Animal cat = new Cat(); //자동 형 변환(promotion)
+        Cat cat2 = cat; //컴파일 에러
+        Cat cat4 = (Cat) cat; //형 변환 성공
     }
 }
 ```
@@ -214,10 +226,11 @@ final 클래스는 상속할 수 없는 불변 클래스입니다. 불변 클래
 3. 성능
     - 불변 데이터는 thread-safe합니다
 
-
-
 ### final 키워드를 왜 사용할까?
-final 키워드를 사용하는 가장 큰 이유는 개발 의도와 코드의 가독성 때문입니다. final 키워드로 이 멤버는 불변이다라고 명시적으로(explicit) 표현함으로써 개발 의도를 확실하고 실수도 줄일 수 있습니다. final 키워드가 붙은 멤버를 변경시 컴파일 에러가 발생하기 때문입니다.
+**final 키워드를 사용하는 가장 큰 이유는 개발 의도와 코드의 가독성 때문**입니다. final 키워드로 이 멤버는 불변이다라고 명시적으로(explicit) 표현함으로써 개발 의도를 확실하고 실수도 줄일 수 있습니다. final 키워드가 붙은 멤버를 변경시 컴파일 에러가 발생하기 때문입니다.
+
+즉, final 키워드는 final은 Immutable/Read-only 속성을 선언하는 지시어입니다.
+
 
 ## Object 클래스
 Object 클래스는 상속 계층의 최상위에 존재하는 조상 클래스입니다. 따로 다른 클래스를 상속하지 않는 클래스들은 컴파일시 컴파일러가 자동으로 **extends Object**를 붙여줍니다. 결국엔 자바의 모든 클래스는 Object 클래스로 형 변환할 수 있습니다. Object 클래스에는 인스턴스가 기본적으로 가져야 할 메소드들이 정의되어 있습니다.
