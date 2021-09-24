@@ -99,6 +99,7 @@ package me.study.sample
 import java.lang.String //lang 패키지는 생략 가능
 
 public class Hello {
+
     public static void main(String[] args) {
         String text = "Hello";
     }
@@ -138,6 +139,19 @@ me.study.sample.Hello 클래스와 me.study.sample2.Hello 클래스가 있습니
 #### static import
 static import는 자바 5버전부터 지원되는 기능이며, **임의의 패키지 내 클래서에서 public static으로 선언된 멤버(필드, 메소드)를 사용할 때 클래스명을 명시하지 않고도 사용할 수 있는 기능**을 말합니다.
 
+```java
+package me.study.yoon
+
+import static java.lang.System.out;
+
+public class MyClass {
+
+    public static void main(String[] args) {
+        out.println("Hello");
+    }
+}
+```
+
 ## 3. 클래스패스(CLASSPATH)
 - classpath
 - java_home
@@ -148,7 +162,93 @@ static import는 자바 5버전부터 지원되는 기능이며, **임의의 패
 
 ### 3-2. classpath 옵션
 
-## 4. 접근제어자
+## 4. 접근 제어자
+접근 제어자란 접근 제어자 키워드가 붙어있는 클래스, 변수, 메소드를 해당 키워드가 허용하는 범위 내에서만 접근할 수 있도록 제한하는 역할을 합니다.
+
+ |접근제한자|동일 클래스|동일 패키지|자식 클래스|그 외의 영역|
+ |:--:|:--:|:--:|:--:|:--:|
+ |public|O|O|O|O|
+ |protected|O|O|O|X|
+ (default)|O|O|X|X|
+ |private|O|X|X|X|
+
+ #### 접근 제어자를 사용하는 이유
+ - 외부러부터 데이터를 숨기기 위해서
+ - 외부에 노출할 필요가 없는 내부적인 로직을 감추기 위해서
+
+ ### 4-1. 생성자의 접근 제어자
+ 보통 생성자의 접근 제어자로는 public을 사용합니다. 하지만 애플리케이션에서 인스턴스가 딱 1개만 존재해야 할 때 생성자의 접근 제어자를 **private**로 선언해서 인스턴스 생성을 제한할 수 있습니다. 이러한 패턴을 **싱글턴(Singleton) 패턴**이라고 부릅니다. 보통 시스템 설계상 유일해야 하는 설정 클래스나 DBCP(DataBase Connection Pool)처럼 
+
+ 싱글턴 패턴으로 클래스를 구현하기 위해선 아래 3가지 사항을 지켜야 합니다.
+ - private 생성자
+ - static 변수로 객체 생성
+ - 객체의 getter 구현
+
+```java
+package me.study.yoon
+
+public class Singleton {
+
+    private static final Singleton INSTANCE = new Singleton();
+
+    private Singleton() {
+
+    }
+
+    public static Singleton getInstance() {
+        return INSTANCE;
+    }
+}
+```
+
+```java
+package me.study.yoon
+
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class SingletonTest {
+
+    @Test
+    void isSameInstance() {
+        Singleton instance1 = Singleton.getInstance();
+        Singleton instance2 = Singleton.getInstance();
+
+        assertThat(instance1).isEqualTo(instance2);
+    }
+
+}
+```
+
+위의 테스트로 두 인스턴스가 동일함을 알 수 있습니다. 추가적으로, pirvate 생성자를 가진 클래스는 다른 클래스의 부모가 될 수 없습니다. 자식 인스턴스가 생길 때 super()를 호출할 수 없기 때문입니다. 따라서 **final** 클래스로 명시적(explicit)으로 상속할 수 없는 클래스라고 알리는 것도 좋습니다.
 ___
 
-참고 : [자바의 정석](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [자바의 패키지와 클래스패스](https://ahnyezi.github.io/java/javastudy-7-package/), [Packages in Java](https://www.geeksforgeeks.org/packages-in-java/)
+참고 : [자바의 정석](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [자바의 패키지와 클래스패스](https://ahnyezi.github.io/java/javastudy-7-package/), [Packages in Java](https://www.geeksforgeeks.org/packages-in-java/), [이펙티브 자바 3/E](http://www.yes24.com/Product/Goods/65551284?OzSrank=1)
+
+___
+- 하나의 테이블
+    - 생성하고 싶은 db를 구상해라
+    - 이름 규약 등 잘 따를 것
+    - 테이블은 5개 이상의 칼럼을 가질 것
+    - 서로 다른 데이터 타입 3가지 이상 가질 것
+
+- 테이블
+    - 의미있고 연관된 데이터들을 관리하는 하나의 '**틀**'
+    - 자바에서 변수들을 클래스에서 관리하듯이
+    - 데이터베이스에는 테이블이 있습니다
+
+realational database management system (관계형 데이터베이스 관리 시스템) --> mysql 
+
+**학생**
+|아이디|비밀번호|이름|학번|생년월일|전화번호|성별|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|happyblue0613|1234|윤소이|20195470|000613|010-5231-5873|F|
+|dbsehdghks45|1234|윤동환|2015244029|960404|010-5231-5873|M|
+
+**애완동물**
+|종|이름|성별|
+|:--:|:--:|:--:|
+|개|보리|F|
+|개|콩순이|F|
+|고양이|토리|M|
