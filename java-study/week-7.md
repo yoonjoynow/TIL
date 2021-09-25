@@ -137,30 +137,56 @@ public class MyClass {
 me.study.sample.Hello 클래스와 me.study.sample2.Hello 클래스가 있습니다. FQCN은 다르지만 클래스 파일명은 동일하기 때문에 컴파일러는 Hello를 보고 어느 패키지의 Hello인지 알 수 없습니다. 이럴땐 명시적(explicit)으로 첫 번째 방법을 사용해야합니다.
 
 #### static import
-static import는 자바 5버전부터 지원되는 기능이며, **임의의 패키지 내 클래서에서 public static으로 선언된 멤버(필드, 메소드)를 사용할 때 클래스명을 명시하지 않고도 사용할 수 있는 기능**을 말합니다.
+static import는 자바 5버전부터 지원되는 기능이며, **임의의 패키지 내 클래서에서 public static으로 선언된 멤버(필드, 메소드)를 사용할 때 클래스명을 명시하지 않고도 사용할 수 있는 기능**을 말합니다. 이 static import는 테스트 코드에서 자주 만날 수 있습니다.
 
 ```java
-package me.study.yoon
+package me.yoon.study;
 
-import static java.lang.System.out;
+import org.junit.jupiter.api.Test;
 
-public class MyClass {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    public static void main(String[] args) {
-        out.println("Hello");
+class LinkedListTest {
+
+    @Test
+    void add_success_test() {
+        //arrange
+        Linkedlist<Integer> list = new LinkedList<>();
+        list.add(1);
+        list.add(2);
+
+        //act
+        int index1 = list.indexOf(1);
+        int index2 = list.indexOf(2);
+
+        //assert
+        assertThat(index1).isEqualTo(0);
+        assertThat(index2).isEqualTo(1);
     }
 }
 ```
 
-## 3. 클래스패스(CLASSPATH)
-- classpath
-- java_home
+assertThat()이라는 메소드를 static import를 통해서 바로 사용할 수 있습니다.
 
-클래스패스는 
+## 3. 클래스패스
+클래스패스란 클래스가 존재하고 있는 곳의 경로(path)입니다. 즉, JVM이 클래스를 찾을 때 어느 곳을 기준으로 클래스들을 찾아나갈지에 대해서 정해둔 경로입니다. java나 javac 명령어를 사용할 때 JVM에게 클래스패스를 알려주어야 하는데 이때 사용하는 옵션이 -classpath 옵션입니다.
+
+우리가 클래스를 식별할 때 FQCN을 사용했습니다. JVM은 클래스를 찾을때 클래스패스를 기준으로 FQCN이 일치하는 클래스를 찾게됩니다.
+
+#### -classpath 옵션
 
 ### 3-1. CLASSPATH 환경변수
+환경변수란 운영체제에 지정하는 변수로, 프로세스나 애플리케이션 등이 환경변수의 값을 참조해서 사용할 수 있습니다. 자바는 클래스패스를 **CLASSPATH**라는 환경변수에 할당하며, JVM은 이 **CLASSPATH**값을 참조해서 클래스들을 찾습니다. 우리는 CLASSPATH를 통해서 매번 명령(java, javac, javap 등)을 수행할때마다 -classpath 옵션을 사용하지 않고도 어느 디렉토리에서든 명령을 사용할 수 있습니다.
 
-### 3-2. classpath 옵션
+이 CLASSPATH를 포함한 환경변수들은 운영체제를 변경하면 클래스패스가 사라지기 때문에 최근에는 클래스패스를 환경변수로 지정하는 대신 IDE나 빌드도구를 통해 클래스패스를 설정합니다.
+
+#### IDE로 클래스패스 설정하기
+File - Project Structure - Modules 
+단축키(mac 기준) : cmd + ;
+
+<img width="660" alt="스크린샷 2021-09-25 오후 10 50 05" src="https://user-images.githubusercontent.com/80696862/134773924-4b6ac691-786c-482f-a491-3cad39879a22.png">
+
+왜 클래스패스를 사용할까요? 클래스패스라는 값이 없다면 JVM과 컴파일러는 해당 클래스가 어디에 있는지 하드웨어 내부를 모두 뒤지거나 매번 java, javac 명령을 실행할때마다 해당 클래스의 위치를 알려주는 수고를 해야할 것입니다. 따라서 우리가 개발하는 클래스들이 위치하는 기준을 정해두고 이를 클래스패스 변수에 등록해두면, JVM은 매번 명령을 실행할때마다 클래스패스 변수를 참고해서 해당 클래스를 찾습니다.
 
 ## 4. 접근 제어자
 접근 제어자란 접근 제어자 키워드가 붙어있는 클래스, 변수, 메소드를 해당 키워드가 허용하는 범위 내에서만 접근할 수 있도록 제한하는 역할을 합니다.
@@ -175,6 +201,8 @@ public class MyClass {
  #### 접근 제어자를 사용하는 이유
  - 외부러부터 데이터를 숨기기 위해서
  - 외부에 노출할 필요가 없는 내부적인 로직을 감추기 위해서
+
+ 이렇게 접근 제어자를 사용해 객체에 대한 외부의 접근을 제한할 수 있는 특징을 객체의 **캡슐화**(Encapsulation)이라고 합니다. 객체 내부의 값에 대해 직접 접근을 제한하며, 값의 조회나 변경이 필요시엔 해당 객체의 의도가 명확한 이름의 메소드를 통해서 접근해야 합니다.
 
  ### 4-1. 생성자의 접근 제어자
  보통 생성자의 접근 제어자로는 public을 사용합니다. 하지만 애플리케이션에서 인스턴스가 딱 1개만 존재해야 할 때 생성자의 접근 제어자를 **private**로 선언해서 인스턴스 생성을 제한할 수 있습니다. 이러한 패턴을 **싱글턴(Singleton) 패턴**이라고 부릅니다. 보통 시스템 설계상 유일해야 하는 설정 클래스나 DBCP(DataBase Connection Pool)처럼 
@@ -225,30 +253,3 @@ class SingletonTest {
 ___
 
 참고 : [자바의 정석](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [자바의 패키지와 클래스패스](https://ahnyezi.github.io/java/javastudy-7-package/), [Packages in Java](https://www.geeksforgeeks.org/packages-in-java/), [이펙티브 자바 3/E](http://www.yes24.com/Product/Goods/65551284?OzSrank=1)
-
-___
-- 하나의 테이블
-    - 생성하고 싶은 db를 구상해라
-    - 이름 규약 등 잘 따를 것
-    - 테이블은 5개 이상의 칼럼을 가질 것
-    - 서로 다른 데이터 타입 3가지 이상 가질 것
-
-- 테이블
-    - 의미있고 연관된 데이터들을 관리하는 하나의 '**틀**'
-    - 자바에서 변수들을 클래스에서 관리하듯이
-    - 데이터베이스에는 테이블이 있습니다
-
-realational database management system (관계형 데이터베이스 관리 시스템) --> mysql 
-
-**학생**
-|아이디|비밀번호|이름|학번|생년월일|전화번호|성별|
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|happyblue0613|1234|윤소이|20195470|000613|010-5231-5873|F|
-|dbsehdghks45|1234|윤동환|2015244029|960404|010-5231-5873|M|
-
-**애완동물**
-|종|이름|성별|
-|:--:|:--:|:--:|
-|개|보리|F|
-|개|콩순이|F|
-|고양이|토리|M|
