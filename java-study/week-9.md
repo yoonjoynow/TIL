@@ -56,7 +56,7 @@
 - 프로그램 외부의 문제로 발생할 수 있는 것들로서, 프로그램의 사용자(클라이언트)측의 잘못된 동작에 의해 발생하는 경우가 많음
 - 예외 처리가 강제됨 (컴파일 에러 발생)
 
-#### Checked Exception의 종류
+#### Checked Exception 예시
 |클래스 명|설명|
 |--|--|
 |IOException|입출력 작업이 실패하거나 중단되었을 때 발생 |
@@ -70,7 +70,7 @@
 - 피할 수 있지만 개발자의 부주의로 발생하며 자바의 프로그래밍 요소들과 관계가 깊다
 - 예외 처리가 강제되지 않음
 
-#### Unchecked Exception의 종류
+#### Unchecked Exception 예시
 |클래스 명|설명|
 |--|--|
 |NullPointerException|객체를 필요로 하는 곳에서 null을 사용하려고 시도할때 발생|
@@ -153,9 +153,13 @@ public class Example {
 }
 ```
 
-정답은 발생한다입니다. 코드의 흐름은 위에서부터 아래방향입니다. 이 예외처리 구문에서 Exception은 모든 예외 클래스들의 부모 클래스입니다. 따라서 ArithmeticException을 포함한 모든 예외 상황이 첫 번째 catch 블럭에서만 잡히게 되어 두 번째 catch블럭은 사용될 일이 없어 컴파일 에러가 발생합니다. 따라서 항상 예외를 잡을 때에는 좀 더 명시적인(explicit) 예외부터 차례대로 catch해주어야 합니다. 위 코드는 아래처럼 바꿔주어야 합니다.
+정답은 발생한다입니다. 코드의 흐름은 위에서부터 아래방향입니다. 이 예외처리 구문에서 Exception은 모든 예외 클래스들의 부모 클래스입니다. 
 
-**여러 개의 catch 문을 사용할 경우 좀 더 명시적인 순서대로 기술한다.**
+따라서 ArithmeticException을 포함한 모든 예외 상황이 첫 번째 catch 블럭에서만 잡히게 되어 두 번째 catch블럭은 사용될 일이 없어 컴파일 에러가 발생합니다. 항상 예외를 잡을 때에는 좀 더 상위 타입의 예외부터 차례대로 catch해주어야 합니다. 
+
+위 코드는 아래처럼 바꿔주어야 합니다.
+
+**'여러 개의 catch 문을 사용할 경우 좀 더 상위타입인 순서대로 작성한다'.**
 
 ```java
 public class Example {
@@ -264,13 +268,161 @@ try {
 }
 ```
 
-### 다중 try-catch 문
+### 중첩 try-catch 문
+if문처럼, try 블럭 내부에 try-catch을 하나 더 선언할 수 있습니다. 중첩은 몇개든 상관없이 할 수 있습니다. 
+
+```java
+public class Example {
+
+    public static void main(String[] args) {
+
+        try {
+            try {
+
+            } catch (Exception e) {
+
+            }
+        } catch (Exception e2) {
+            
+        }
+    }
+}
+```
 
 ### try-catch-finally 문
+try-catch문의 특징은 try 블럭 내에서 예외가 발생시 무조건 catch 블럭으로 코드의 흐름이 넘어간다는 것입니다. 이 경우, try문에서 무조건 실행되어야 하는 구문이 실행되지 못한 채 try-catch문 밖으로 코드 흐름이 넘어가는 문제가 발생합니다. 
+
+그래서 **'예외 발생 여부와 상관없이 무조건 실행시켜야 하는 중요한 코드'는 finally 블럭 안에 작성해야 합니다.**
+
+try-catch-finally문은 아래와 같은 자원(Resource) 등을 사용할 때 주로 사용됩니다.
+- 파일 입출력
+- JDBC 연동
+- 소켓 프로그래밍
+
+아래는 JDBC 연동 예제입니다.
+*(여기서는 자바에서 자원을 사용시 이렇게 많은 예외 처리가 필요하구나에 집중하시기 바랍니다.)*
+
+```java
+public class JdbcExample {
+
+    private static final String CREATE_USERS_SQL = "create table users (id varchar(10) primary key)";
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/hello";
+    private static final String DB_USERNAME= "root";
+    private static final String DB_PASSWORD = "1234";
+
+    Connection connection = null; // 자원
+    Statement statement = null; // 자원
+
+    public void create(User user) {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD); // 자원 생성
+            statement = connection.createStatement(); // 자원 사용 & 생성
+            statement.execute(CREATE_USERS_SQL); // 자원 사용
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (statement != null) {
+                try {
+                    statement.close(); // 예외 발생 가능성, 자원 해제
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close(); // 예외 발생 가능성, 자원 해제
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+}
+```
+
+자원은 대게 비싸며, 자원을 사용후 해제해주지 않으면 예측할 수 없는 큰 성능 문제가 발생할 수 있습니다.(자원 누수로 인한 성능이슈) 따라서 자원 해제는 항상 finally문에서 해주어야 합니다.
+
+하지만 자원 해제시에도 예외가 발생할 수 있습니다. 자원을 해제하는 메소드 close()는 Exception을 던지기 때문입니다. 그래서 finally문 안에서도 일일이 try-catch 문으로 감싸주어야 합니다.
+
+그리고 try문과 finally문에서 모두 예외가 발생한다면, try문의 예외는 무시되는 큰 문제가 있습니다.
+
+위와 같은 코드는 보기도 지저분하고 가독성도 떨어집니다. 또한 실수로 자원을 해제해주지 않는다면, 이후에 엄청난 성능이슈로 돌아올 수 있습니다. 여러 곳에서 자원을 사용한다면, 정말이지 자원을 사용하는 곳의 모든 코드를 일일이 확인해서 닫지 않은 부분을 찾아야 할 것입니다.
 
 ### try-with-resource 문
+try-with-resource문은 위와 같은 문제를 해결하기 위해 JDK 1.7부터 추가되었습니다. 자원을 사용하는 경우, 자원을 획득하는 코드를 try 문 다음에 소괄호에 넣어주면 됩니다. **try-with-resource 문을 통해 예외 발생 유무와 상관없이 자원을 해제할 수 있습니다.** 자원의 갯수가 복수일 경우엔 자원 사이에 ;를 적어야합니다.
+
+```java
+public class JdbcExample {
+
+    private static final String CREATE_USERS_SQL = "create table users (id varchar(10) primary key)";
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/hello";
+    private static final String DB_USERNAME= "root";
+    private static final String DB_PASSWORD = "1234";
+
+    public void create(User user) {
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD);
+             Statement statement = connection.createStatement()) {
+
+            Class.forName("org.postgresql.Driver");
+            statement.execute(CREATE_USERS_SQL);
+
+        } catch (ClassNotFoundException |  SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+}
+```
+
+
 
 #### AutoCloseable 인터페이스
+try-with-resource 문을 사용할 수 있는 자원은 AutoCloseable 인터페이스를 구현한 클래스여야 합니다.
+
+```java
+public interface AutoCloseable {
+    // 자원을 해제할 수 없을때 예외 발생
+    void close() throws Exception;
+}  
+```
+
+### 향상된 try-with-resource 문
+하지만 여전히 try-with-resource 문에도 약간의 문제가 보입니다. 해제해야하는 자원의 수가 많을 경우 또다시 소괄호 안이 지저분해집니다.
+
+이에 JDK 9버전부터는 try-with-resource 문을 좀 더 유연하게 사용할 수 있도록 소괄호에 참조 변수를 사용할 수 있습니다.
+
+```java
+public class JdbcExample {
+
+    private static final String CREATE_USERS_SQL = "create table users (id varchar(10) primary key)";
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/hello";
+    private static final String DB_USERNAME= "root";
+    private static final String DB_PASSWORD = "1234";
+
+    public void create(User user) throws Exception{
+
+        Connection connection = DriverManager.getConnection(DB_URL, DB_USERNAME, DB_PASSWORD;
+        Statement statement = connection.createStatement();
+
+        try (connection; statement) {
+
+            Class.forName("org.postgresql.Driver");
+            statement.execute(CREATE_USERS_SQL);
+
+        } catch (ClassNotFoundException |  SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+}
+```
 
 ### 예외 던지지(회피)
 
