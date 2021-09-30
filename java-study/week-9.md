@@ -69,6 +69,7 @@
 - 프로그램에서 오류가 생겼을 때 발생하도록 의도된 예외
 - 피할 수 있지만 개발자의 부주의로 발생하며 자바의 프로그래밍 요소들과 관계가 깊다
 - 예외 처리가 강제되지 않음
+- Unhandled Exception 이라고도 함
 
 #### Unchecked Exception 예시
 |클래스 명|설명|
@@ -87,10 +88,10 @@ IllegalStateException|메소드 호출 시점이 잘못되었을 때 발생|
 컴파일된 애플리케이션을 실행하더라도 에러는 충분히 발생할 수 있습니다. 이때 발생하는 에러는 컴파일러가 체크를 못한 **Unchecked Exception**이라고 합니다. Unchecked Exception은 모두 **RuntimeException 클래스의 서브클래스**이고, 컴파일 에러가 발생하지 않아 개발자가 적절히 처리해줘야 합니다. 
 
 |구분|Checked Exception|Unchecked Exception|
-|:--:|:--:|:--:|
+|--|--|--|
 |발생 시점|컴파일 타임|런타임|
 |처리 여부|반드시 예외 처리|명시적으로 하지 않아도 됨|
-|예외 원인|메소드를 호출하는 쪽에서 잘못된 방법으로 메소드를 사용한 경우|개발자의 부주의가 대부분|
+|예외 원인|클라이언트 측에서 잘못된 방법으로 메소드를 호출한 경우|개발자의 부주의가 대부분|
 
 
 그렇다면 자바에서는 왜 예외의 종류를 두 종류로 굳이 구분할까요? [오라클 레퍼런스](https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html)에서는 이렇게 설명하고 있습니다.
@@ -123,7 +124,7 @@ public class Example {
 }
 ```
 
-하나의 try 블럭 다음에는 여러 종류의 예외를 처리할 수 있도록 하나 이상의 catch 블럭이 위치할 수 있습니다. try-catch문의 실행 흐름은 아래와 같습니다.
+하나의 try 블럭 다음에는 여러 종류의 예외를 처리할 수 있도록 하나 이상의 catch 블럭이 위치할 수 있습니다. 마치 if문처럼 발생한 예외의 타입에 해당하는 catch 블럭이 실행됩니다. try-catch문의 실행 흐름은 아래와 같습니다.
 
 - **try 블럭 내에서 예외가 발생한 경우**
     1. 발생한 예외하 일치하는 타입을 잡는 catch 블럭이 있는지 확인
@@ -139,11 +140,13 @@ public class Example {
 
     public static void main(String[] args) {
 
+        int e = 0;
+
         try {
             int a = 5 % 0; // ArithmeticException 발생 지점
-        } catch (Exception e1) {
+        } catch (Exception e) {
             System.out.println("Exception 발생");
-        } catch (ArithmeticException e2) {
+        } catch (ArithmeticException e) {
             System.out.println("ArithmeticException 발생");
         }
 
@@ -153,13 +156,19 @@ public class Example {
 }
 ```
 
-정답은 발생한다입니다. 코드의 흐름은 위에서부터 아래방향입니다. 이 예외처리 구문에서 Exception은 모든 예외 클래스들의 부모 클래스입니다. 
+정답은 발생한다입니다.위 코드의 문제점은 두 가지 입니다.
 
-따라서 ArithmeticException을 포함한 모든 예외 상황이 첫 번째 catch 블럭에서만 잡히게 되어 두 번째 catch블럭은 사용될 일이 없어 컴파일 에러가 발생합니다. 항상 예외를 잡을 때에는 좀 더 상위 타입의 예외부터 차례대로 catch해주어야 합니다. 
+- **참조변수 e의 중복**
+- **catch 블럭의 파라미터의 순서**
+
+try-catch문은 메소드처럼 스코프를 가집니다. 따라서 try-catch 블럭 내부에서 참조변수는 중복될 수 없습니다.
+
+코드의 흐름은 위에서부터 아래방향입니다. 이 예외처리 구문에서 Exception은 모든 예외 클래스들의 부모 클래스입니다. 따라서 ArithmeticException을 포함한 모든 예외 상황이 첫 번째 catch 블럭에서만 잡히게 되어 두 번째 catch블럭은 사용될 일이 없어 컴파일 에러가 발생합니다. 항상 예외를 잡을 때에는 좀 더 상위 타입의 예외부터 차례대로 catch해주어야 합니다. 
 
 위 코드는 아래처럼 바꿔주어야 합니다.
 
-**'여러 개의 catch 문을 사용할 경우 좀 더 상위타입인 순서대로 작성한다'.**
+- **try-catch문에서 참조변수명을 유일하게 작성한다.**
+- **여러 개의 catch 문을 사용할 경우 좀 더 상위타입인 순서대로 작성한다.**
 
 ```java
 public class Example {
@@ -168,9 +177,9 @@ public class Example {
 
         try {
             int a = 5 % 0; // ArithmeticException 발생 지점
-        } catch (ArithmeticException e2) {
+        } catch (ArithmeticException e1) {
             System.out.println("ArithmeticException 발생");
-        } catch (Exception e1) {
+        } catch (Exception e2) {
               System.out.println("Exception 발생");
         }
 
@@ -198,6 +207,27 @@ try {
     // 컴파일 에러
 } catch (FileNotFoundException e3) {
     // 컴파일 에러
+}
+```
+
+또한 catch 블럭내에 또다른 try-catch문이 선언된 경우는, 같은 이름의 참조변수를 사용할 수 없습니다. catch 블럭은 하나의 스코프로 변수명이 겹칠 수 없습니다.
+
+```java
+try {
+    int result = 5 % 0;
+} catch (Exception e) {
+    System.out.println("e = " + e);
+    int[] array = {1, 2, 3};
+    try {
+
+        for (int i = 0; i < 10; i++) {
+            System.out.println("value = " + array[i]);
+        }
+
+    } catch (Exception e) { // 컴파일 에러 : 변수명 중복
+        System.out.println("e = " + e); // 컴파일 에러 : 변수명 중복
+    }
+
 }
 ```
 
@@ -313,7 +343,7 @@ public class JdbcExample {
     Connection connection = null; // 자원
     Statement statement = null; // 자원
 
-    public void create(User user) {
+    public void create() {
 
         try {
             Class.forName("org.postgresql.Driver");
@@ -344,7 +374,7 @@ public class JdbcExample {
 }
 ```
 
-자원은 대게 비싸며, 자원을 사용후 해제해주지 않으면 예측할 수 없는 큰 성능 문제가 발생할 수 있습니다.(자원 누수로 인한 성능이슈) 따라서 자원 해제는 항상 finally문에서 해주어야 합니다.
+자원은 대게 비싸며, 자원을 사용 후 해제해주지 않으면 예측할 수 없는 큰 성능 문제가 발생할 수 있습니다.(자원 누수로 인한 성능이슈) 따라서 자원 해제는 항상 finally문에서 해주어야 합니다.
 
 하지만 자원 해제시에도 예외가 발생할 수 있습니다. 자원을 해제하는 메소드 close()는 Exception을 던지기 때문입니다. 그래서 finally문 안에서도 일일이 try-catch 문으로 감싸주어야 합니다.
 
@@ -353,7 +383,7 @@ public class JdbcExample {
 위와 같은 코드는 보기도 지저분하고 가독성도 떨어집니다. 또한 실수로 자원을 해제해주지 않는다면, 이후에 엄청난 성능이슈로 돌아올 수 있습니다. 여러 곳에서 자원을 사용한다면, 정말이지 자원을 사용하는 곳의 모든 코드를 일일이 확인해서 닫지 않은 부분을 찾아야 할 것입니다.
 
 ### try-with-resource 문
-try-with-resource문은 위와 같은 문제를 해결하기 위해 JDK 1.7부터 추가되었습니다. 자원을 사용하는 경우, 자원을 획득하는 코드를 try 문 다음에 소괄호에 넣어주면 됩니다. **try-with-resource 문을 통해 예외 발생 유무와 상관없이 자원을 해제할 수 있습니다.** 자원의 갯수가 복수일 경우엔 자원 사이에 ;를 적어야합니다.
+try-with-resource문은 위와 같은 문제를 해결하기 위해 JDK 1.7부터 추가되었습니다. 자원을 사용하는 경우, 자원을 획득하는 코드를 try 문의 파라미터터로 선언해 주시면 됩니다. **try-with-resource 문을 통해 예외 발생 유무와 상관없이 자원을 해제할 수 있습니다.** 자원의 갯수가 복수일 경우엔 자원 사이에 ;를 적어야합니다.
 
 ```java
 public class JdbcExample {
@@ -424,15 +454,51 @@ public class JdbcExample {
 }
 ```
 
-### 예외 던지지(회피)
+훨씬 간편해보이지만, 자원을 획득하는 코드들이 모두 try 블럭 외부에 있습니다. 분명 예외가 발생할 수 있는 코드들은 try문으로 감싸야 한다고 했습니다. 이게 어떻게 된 일일까요?
 
 ### 예외 처리 비용
 https://www.notion.so/3565a9689f714638af34125cbb8abbe8
 
 # 3. 예외 발생시키기
+## 3-1. throw
+자바에서 예외는 **throw** 키워드로 메소드 내부에서 임의로 발생시킬 수 있습니다. throw 키워드 다음에 Throwable 타입의 서브클래스들을 선언해 주면 됩니다. Checked Exception과 Unchecked Exception 모두 발생시킬 수 있습니다. 
+
+로그인시 아이디 혹은 비밀번호가 일치하지 않거나 메소드를 실행시킬 수 있는 조건에 부합하지 않는 경우 예외를 고의로 발생시켜서 클라이언트측에 알릴 수 있습니다.
+
+
+```java
+public class Example {
+
+    public void login(String id, String password) {
+
+        if (id.isBlank() || password.isBlank()) {
+            throw new IllegalArgumentException(""아이디와 비밀번호를 입력해주세요"!)
+        }
+    }
+
+}
+```
+
+## 3-2. throws
+**throws** 키워드는 메소드 선언부에 어떤 예외가 발생할 수 있는지 알리기 위해서 사용합니다. 주로 Checked Exception 타입을 선언해 클라이언트측에서 예외 처리를 강제하도록 합니다. Unchecked Exception 타입인 경우엔 명시하지 않아도 
+
+```java
+
+```
+
+### throw와 throws의 차이
+|throw|throws|
+|--|--|
+|메소드 혹은 생성자 내부에서 사용|메소드 혹은 생성자 시그니처에서 사용|
+|명시적으로 예외를 발생시키기 위해서 사용|예외가 발생할 수 있다고 알리기 위해 사용|
+|오직 한개의 예외만 발생 가능|여러개의 예외 선언 가능|
+|Checked Exception은 발생시킬 수 없음|Checked Exception 선언 가능|
 
 # 4. 사용자 정의 예외
+자바의 예외 상속 계층을 살펴본 것처럼, 자바에서는 이미 수 많은 종류의 예외를 제공하고 있습니다. 하지만 이외에도 사용자 정의 예외를 만들어서 사용할 수 있습니다. 새로운 예외를 만들떈 내가 만들고자 하는 예외의 종류(Checked Exception, Unchecked Exception)
 
 # 5. 예외의 전파
+
+# 6. 예외 처리 전략
 
 참고 : [자바의 정석](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [[Java] 자바의 예외](https://ahnyezi.github.io/java/javastudy-9-exception/), [토비의 스프링 3.1 1권 5장 예외](http://www.yes24.com/Product/Goods/75738557?OzSrank=3), [오라클 레퍼런스](https://docs.oracle.com/javase/tutorial/java/TOC.html)

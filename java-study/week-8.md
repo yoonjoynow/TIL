@@ -245,6 +245,7 @@ static 메소드는 디폴트 메소드와 마찬가지로 인터페이스 내�
 is-a, has a
 
 ## 3. 인터페이스의 안티 패턴
+상수 모음
 
 
 참고 : [자바의 정석](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [객체지향의 사실과 오해](http://www.yes24.com/Product/Goods/18249021?OzSrank=1), [더 자바, Java 8](https://www.inflearn.com/course/the-java-java8/dashboard), [모던 자바 인 액션](http://www.yes24.com/Product/Goods/77125987?OzSrank=1)
