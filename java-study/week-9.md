@@ -480,10 +480,17 @@ public class Example {
 ```
 
 ## 3-2. throws
-**throws** 키워드는 메소드 선언부에 어떤 예외가 발생할 수 있는지 알리기 위해서 사용합니다. 주로 Checked Exception 타입을 선언해 클라이언트측에서 예외 처리를 강제하도록 합니다. Unchecked Exception 타입인 경우엔 명시하지 않아도 
+**throws** 키워드는 메소드 선언부에 어떤 예외가 발생할 수 있는지 알리기 위해서 사용합니다. 주로 Checked Exception 타입을 선언해 클라이언트측에서 해당 메소드 사용시 예외 처리를 강제하도록 합니다. Unchecked Exception 타입인 경우엔 throws에 명시하지 않아도 됩니다.
 
 ```java
+public class BookWriter {
 
+    private String isbs;
+    private String author;
+    private String text;
+
+
+}
 ```
 
 ### throw와 throws의 차이
@@ -502,6 +509,46 @@ public class Example {
 - 코드에서 만드려는 타입의 예외가 두 곳 이상 발생하는지?
 - 다른 사람의 예외를 사용하는 경우 사용자가 해당 예외에 액세스할 수 있는지?
 
+**Custom Checked Exception** 
+``java
+public class
+```
+
+**Custom Unchecked  Exception**
+``java
+
+```
+
+#### 사용자 정의 예외 생성시 유의사항
+- 사용자 정의 예외의 클래스 이름은 자바에서 제공하는 예외 클래스 이름처럼 이 예외가 어떤 예외인지 명확히 알 수 있어야 합니다.
+- super 클래스의 모든 생성자를 호출하는 생성자를 만들어 주는 것이 좋습니다. (root cause를 잃지 않을 수 있도록 만들어줍니다)
+- 중복되는 예외 클래스의 정의는 지양합니다. 중복되는 예외는 오히려 예외의 원인을 파악하기 힘들게 합니다.
+
+#### IndexOutOfBoundsException.class의 내부 코드
+```java
+public class IndexOutOfBoundsException extends RuntimeException {
+
+    @java.io.Serial
+    private static final long serialVersionUID = 234122996006267687L;
+
+
+    public IndexOutOfBoundsException() {
+        super();
+    }
+
+    public IndexOutOfBoundsException(String s) {
+        super(s);
+    }
+
+    public IndexOutOfBoundsException(int index) {
+        super("Index out of range: " + index);
+    }
+
+    public IndexOutOfBoundsException(long index) {
+        super("Index out of range: " + index);
+    }
+}
+```
 
 # 5. 예외의 전파
 
