@@ -510,13 +510,11 @@ public class BookWriter {
 - 다른 사람의 예외를 사용하는 경우 사용자가 해당 예외에 액세스할 수 있는지?
 
 **Custom Checked Exception** 
-``java
+```java
 public class
 ```
-
-**Custom Unchecked  Exception**
-``java
-
+```java
+public class 
 ```
 
 #### 사용자 정의 예외 생성시 유의사항
