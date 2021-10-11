@@ -156,6 +156,7 @@ public enum DeliveryStatus {
     - 철자는 같아도 문맥에 따라 이를 구별해야 한다
     - 문자열은 이를 구분할 수 없지만, enum은 가능하다
 - **재컴파일하지 않아도 된다**
+    - 상수가 변경되어도 해당 상수를 참조하는 쪽의 소스를 재컴파일하지 않아도 된다
 
 # 2. Enum이 제공하는 메소드
 enum에서 제공하는 메소드는 아래와 같다
@@ -165,11 +166,11 @@ enum에서 제공하는 메소드는 아래와 같다
 |Class<E> getDeclaringClass()|해당 열거형의 Class 타입 객체를 반환한다|
 |int ordinal|해당 열거형 상수의 순서를 반환한다 (0부터 시작)|
 |String name()|해당 열거형 상수의 이름을 리턴한다|
-|T[ ] values()|df|
+|T[ ] values()|해당 열거형에 정의된 모든 상수를 배열에 담아 반환한다|
 |T valueOf(Class<T> enumType, String name|지정된 열거형에서 name과 일치하는 열거형 상수를 반환한다|
 
-
 # 3. java.lang.Enum 클래스
+자바에서 enum 안에 상수만 만들어놓아도 여러가지 메소드를 사용할 수 있습니다. 그 이유는 자바에서 모든 enum은 java.lang.Enum 클래스를 상속하기 때문입니다.
 
 # 4. EnumSet과 EnumMap
 
