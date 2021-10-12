@@ -136,16 +136,14 @@ JDK 1.5버전부터 자바에서 **열거형 타입(enum)을 공식적으로 지
 
 ```java
 public enum DeliveryStatus {
-    ORDERED,
-    READY,
-    DELIVERED;
+    ORDERED, READY, DELIVERED, CANCLED
 }
 ```
 
-## 1-2. 열거형의 특징
-- **값을 타입으로 관리한다**
-    - enum 안에 정의된 상수들은 해당 enum 타입이다
-    - 상수명이 같아도 타입이 다르면 컴파일 에러가 발생하지 않는다
+## 1-2. eunm(열거형)의 특징
+- **enum에 정의된 상수들은 해당 enum 타입의 객체이다**
+    - enum 안에 정의된 상수들은 해당 enum 타입의 객체이다
+    - 상수명이나 값이 같아도 참조값이 다르므로 == 비교시 컴파일 에러가 발생하지 않는다
 - **IDE의 여러가지 지원을 받을 수 있다**
     - 자동완성, 오타검증, 텍스트 리팩토링 등
     - 허용 가능한 값을 제한할 수 있다
@@ -155,22 +153,88 @@ public enum DeliveryStatus {
     - 과일의 Apple과 회사 Apple은 동음이의어다
     - 철자는 같아도 문맥에 따라 이를 구별해야 한다
     - 문자열은 이를 구분할 수 없지만, enum은 가능하다
+    - enum은 타입으로 관리되기 때문이다
 - **재컴파일하지 않아도 된다**
     - 상수가 변경되어도 해당 상수를 참조하는 쪽의 소스를 재컴파일하지 않아도 된다
+- **열거형 상수 간 == 로 비교 가능하다**
+    - equals()를 사용하는 것 보다 조금 더 빠르다
+    - 하지만 이외의 비교 연산자는 사용할 수 없다
+    - compareTo()로도 비교 가능하다
+- **다른 어떠한 클래스도 상속할 수 없다**
+    - 정확히 말하면 Enum 클래스 이외에 상속받을 수 있는 클래스가 없다
 
-# 2. Enum이 제공하는 메소드
-enum에서 제공하는 메소드는 아래와 같다
+## 1-3. enum의 사용
+상품 주문 상태를 표현하는 DeliveryStatus 열거형과 주문 서비스를 처리하는 DeliveryService 클래스가 있습니다. enum은 필드로 선언될 수 있습니다. 이후 메소드를 통해 필드값을 대입할 수 있습니다.
+
+```java
+public enum DeliveryStatus {
+    ORDERED, READY, DELIVERED
+}
+
+public class DeliveryService {
+    DeliveryStatus deliveryStatus;
+
+    public void changeStatus(DeliveryStatus status) {
+        this.deliveryStatus = status;
+    }
+
+}
+```
+
+### getDeclaringClass()
+해당 열거형 상수의 Class 타입 객체를 반환한다
+
+```java
+public enum DeliveryStatus {
+    ORDERED, READY, DELIVERED, CANCLED
+}
+
+public class EnumTest {
+
+    public static void main(String[] args) {
+        Class<Gender> declaringClass = Gender.MALE.getDeclaringClass();
+    }
+}
+```
+
+### int ordinal()
+해당 열거형 상수의 순서를 반환한다
+
+```java
+public class EnumTest {
+
+    public static void main(String[] args) {
+        Gender
+    }
+}
+```
+
+### String name
+
+### T valueOf(String name)
+
+# 2. enum이 제공하는 메소드
+enum에서 제공하는 메소드는 아래와 같습니다.
 
 |메소드 명|설명|
 |--|--|
 |Class<E> getDeclaringClass()|해당 열거형의 Class 타입 객체를 반환한다|
-|int ordinal|해당 열거형 상수의 순서를 반환한다 (0부터 시작)|
+|int ordinal()|해당 열거형 상수의 순서를 반환한다 (0부터 시작)|
 |String name()|해당 열거형 상수의 이름을 리턴한다|
-|T[ ] values()|해당 열거형에 정의된 모든 상수를 배열에 담아 반환한다|
 |T valueOf(Class<T> enumType, String name|지정된 열거형에서 name과 일치하는 열거형 상수를 반환한다|
 
 # 3. java.lang.Enum 클래스
 자바에서 enum 안에 상수만 만들어놓아도 여러가지 메소드를 사용할 수 있습니다. 그 이유는 자바에서 모든 enum은 java.lang.Enum 클래스를 상속하기 때문입니다.
+
+<img width="600" alt="스크린샷 2021-10-12 오후 8 29 54" src="https://user-images.githubusercontent.com/80696862/136948043-dd84e579-2b66-45b4-90bf-b9bc58fd5471.png">
+
+### 유일한 생성자
+
+<img width="580" alt="스크린샷 2021-10-12 오후 8 30 58" src="https://user-images.githubusercontent.com/80696862/136948201-ea9ae23e-6069-4bc6-8227-fe8466e91726.png">
+
+Enum 클래스의 생성자는 1 개가 있고 개발자는 이 생성자를 호출할 수 없습니다. enum 선언 시 컴파일러가 자동으로 추가해준 코드에 사용됩니다.
+
+### enum 내부 구현
 
 # 4. EnumSet과 EnumMap
 
