@@ -12,7 +12,7 @@
 
 서로 연관이 있는, 카테고리 성격성의, 그룹으로써 관리해야하는 값들을 상수로 만들어 한 곳에 모아둔 자료형을 바로 열거형이라고 합니다.
 
-## 1.1 JDK 1.5 이전 열거형을 사용하던 방식
+## 1.1 JDK 1.5 이전 열거형을 사용(흉내)하던 방식
 
 ```java
 public class App {
@@ -90,13 +90,13 @@ JDK 1.5버전 이전에는 자바에서 열거형을 흉내내기 위한 표준 
 두 개의 열거형 그룹이 있다고 가정해 봅시다.
 
 ```java
-public class FruitGroup {
+public class Fruit {
     public static final int APPLE = 1;
     public static final int BANANA = 2;
     public static final int GRAPE = 3;
 }
 
-public class CompanyGroup {
+public class Company {
     public static final int APPLE = 1;
     public static final int AWS = 2;
     public static final int MICROSOFT = 3;
@@ -105,10 +105,10 @@ public class CompanyGroup {
 
 그리고 아래의 식의 결과는 무엇일까요?
 ```java
-System.out.println(FruitGroup.APPLE == CompanyGroup.APPLE);
+System.out.println(Fruit.APPLE == Company.APPLE);
 ```
 
-위 식의 결과는 참입니다. FruitGroup.APPLE과 Company.APPLE의 리터럴은 둘 다 1로 동일하기 때문입니다. 하지만 이것은 우리가 의도하는 것이 아닙니다. 실제 할당받은 값은 같더라도, 우리가 과일 Apple과 기업 Apple을 다르다고 인식하는 것 처럼, 위 식의 결과도 false가 나와야합니다. 하지만 그렇지 않습니다. 
+위 식의 결과는 참입니다. Fruit.APPLE과 Company.APPLE의 리터럴은 둘 다 1로 동일하기 때문입니다. 하지만 이것은 우리가 의도하는 것이 아닙니다. 실제 할당받은 값은 같더라도, 우리가 과일 Apple과 기업 Apple을 다르다고 인식하는 것 처럼, 위 식의 결과도 false가 나와야합니다. 하지만 그렇지 않습니다. 
 
 또한 printFruitName 메소드는 파라미터로 int 타입 하나를 받으므로, 인자로 열겨형 클래스에 모아둔 상수가 아닌 그 어떤 정수라도 전달할 수 있습니다. 이것 또한 우리가 의도한 것이 아닙니다. 
 
@@ -119,10 +119,12 @@ printFruitName(-1); // 컴파일 통과
 ```
 
 #### No namespace
-FruitGroup과 Company그룹의 상수 중 APPLE은 중복됩니다.
+Fruit과 Company의 상수 중 APPLE은 중복됩니다.
 
 #### Brittleness
 정적 상수 변수는 컴파일 타임 상수(Static)이므로 상수의 값이 바뀌면 해당 상수를 참조하는 모든 소스를 재컴파일해야 합니다.
+
+*상수는 컴파일이 완료되면, 이 상수를 사용하는 모든 소스 파일에 상수가 로딩된다. 이 후 상수값을 변경하면 클라이언트 측에서 반드시 재컴파일해야 한다* - 이펙티브 자바 3판 208p
 
 #### Printed values are uninformative
 한 클래스에 모아둔 상수들을 출력하면 정수가 출력됩니다. 하지만 우리는 이 숫자를 보고 무엇을 의미하는지, 어떤 타입인지 알 수 없습니다.
@@ -426,12 +428,33 @@ public final enum me/yoon/study/SeatLevel extends java/lang/Enum {
 - **우리가 선언한 상수들은 모두 SeatLevel 타입의 참조 변수다**
 - **values( )와 valueOf(String name) 메소드가 추가되어 있다**
 - **우리가 만든 enum 클래스의 생성자의 접근제어자가 private이다**
+- **enum 클래스를 상속할 수 없다**
 
-모든 enum 클래스가 Enum을 상속한다는 것은 위에서 언급했으니, 나머지 세 특징을 살펴보겠습니다.
+모든 enum 클래스가 Enum을 상속한다는 것은 위에서 언급했으니, 나머지 네 특징을 살펴보겠습니다.
 
 ### 상수들은 모두 SeatLevel 타입의 참조 변수이다
 SeatLevel는 클래스이므로 JVM의 Method 영역에 로딩됩니다. 그리고 SeatLevel 클래스 내부에 선언되어 있는 상수들은 모두 SeatLevel 타입의 참조 변수로서 JVM Heap 영역에 로딩됩니다.
 
+기존의 정수 열거 패턴에서는 상수명이 달라도 상수값이 같으면 비교연산자 결과가 true인 논리적 오류가 있었다면, enum에서는 유일한 객체로 관리되어서 해당 enum 타입의 상수는 유일합니다. 따라서, == 비교는 같은 타입에서만 가능합니다.
+
+```java
+public enum Fruit {
+    APPLE, BANANA, GRAPE
+}
+
+public enum Company {
+    APPLE, AWS, IBM
+}
+
+public class EnumTest {
+
+    public static void main(String[] args) {
+        boolean a = Fruit.APPLE == Company.APPLE; // 컴파일 에러
+        boolean b = Company.APPLE == Company.AWS; // 컴파일 통과
+        boolean c = Company.APPLE.compareTo(Fruit.APPLE); // 컴파일 에러
+    }
+}
+```
 
 ### values( )와 valueOf(String name) 메소드가 추가되어 있다
 values( )와 valueOf(String name) 메소드는 우리가 만든 것도, Enum으로부터 상속받은 것도 아닌 메소드입니다. 이 두 메소드는 컴파일러가 컴파일 시 자동으로 바이트코드에 추가시켜주는 메소드입니다.
@@ -454,16 +477,53 @@ private <init>(Ljava/lang/String;I)V
 
 우리가 정의한 enum 클래스들은 모두 java.lang.Enum 클래스를 상속합니다. 이 때 Enum 클래스의 유일한 생성자는 protected 접근제어자를 가져서 enum 클래스가 생성시 호출됩니다. 앞서 정의한 SeatLevel 클래스의 계층도는 아래와 같습니다.
 
-<img width="550" alt="스크린샷 2021-10-13 오후 11 47 32" src="https://user-images.githubusercontent.com/80696862/137157203-6fe4284f-609a-45c1-8360-815557f8edd2.png">
+<img width="680" alt="스크린샷 2021-10-14 오전 12 01 46" src="https://user-images.githubusercontent.com/80696862/137159978-48f6e6e2-8c20-408f-9159-898fc2d30c59.png">
 
-그리고 SeatLevel의 바이트코드를 보면 생성자의 접근제어자가 private인 것을 확인할 수 있습니다. 즉 모든 enum 클래스는 **싱글톤**입니다.
+
+그리고 SeatLevel의 바이트코드를 보면 생성자의 접근제어자가 private인 것을 확인할 수 있습니다. 즉 모든 enum 클래스는 **싱글톤**입니다. enum 클래스에 생성자가 없다면 컴파일러가 자동으로 private 생성자를 만들어주고, 우리가 정의한다면 private 생성자만 정의할 수 있습니다.
+
+```java
+public enum SeatLevel {
+    ECONOMY, BUSINESS, FIRST;
+
+    // private 키워드 생략 가능
+    SeatLevel() {
+        System.out.println("좌석 등급 : " + this.name());
+    }
+}
+
+public class EnumTest {
+
+    public static void main(String[] args) {
+        SeatLevel a = SeatLevel.FIRST;
+        SeatLevel b = SeatLevel.FIRST;
+        System.out.println(a == b); //true
+    }
+}
+```
 
 ### 열거형 특징 정리
+- enum은 특수한 형태의 클래스이며, 각 상수는 해당 enum 타입의 객체이다
+- 모든 enum의 생성자는 private 생성자이다
+- enum 상수간 값 비교는 동일 타입 하에서만 가능하다
+- 모든 enum 클래스는 java.lang.Enum 클래스를 상속한다
+- enum 타입 이외의 클래스는 java.lang.Enum 클래스를 상속할 수 없다
+- enum 상수가 변경되어도 해당 상수를 참조하는 소스 파일을 재컴파일 하지 않아도 된다
+- 타입 안정성이 보장된다
+- ==는 사용할 수 있고 이외의 대소비교 연산자는 사용할 수 없다
 
 # 4. Enum 구현해보기
+
+비행기 좌석 등급 enum을 일반 클래스로 구현한다면,
+
+```java
+public enum SeatLeval {
+    ECONOMY, BUSINESS, FIRST
+}
+```
 
 # 5. EnumSet과 EnumMap
 
 ___
 
-참고 : [자바의 정석 3판](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [enum in Java](https://www.geeksforgeeks.org/enum-in-java/)
+참고 : [자바의 정석 3판](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [enum in Java](https://www.geeksforgeeks.org/enum-in-java/), [이펙티브 자바 3판](http://www.yes24.com/Product/Goods/65551284?OzSrank=1)
