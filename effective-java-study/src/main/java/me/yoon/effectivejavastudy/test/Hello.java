@@ -1,2 +1,2 @@
-package me.yoon.effectivejavastudy.test;public class Hello {
+package me.yoon.effectivejavastudy.test;public @interface Hello {
 }

@@ -517,13 +517,13 @@ public class EnumTest {
 비행기 좌석 등급 enum을 일반 클래스로 구현한다면,
 
 ```java
-public enum SeatLeval {
-    ECONOMY, BUSINESS, FIRST
+public class SeatLevel {
+    public static final 
 }
 ```
 
 # 5. EnumSet과 EnumMap
-
+https://wisdom-and-record.tistory.com/52
 ___
 
 참고 : [자바의 정석 3판](http://www.yes24.com/Product/Goods/24259565?OzSrank=2), [enum in Java](https://www.geeksforgeeks.org/enum-in-java/), [이펙티브 자바 3판](http://www.yes24.com/Product/Goods/65551284?OzSrank=1)
