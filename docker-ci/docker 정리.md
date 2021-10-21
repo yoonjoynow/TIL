@@ -54,8 +54,8 @@
 도커 컨테이너는 도커 이미지의 인스턴스이다.
 - **docker ps** 명령어를 사용해서 현재 실행중인 인스턴스 목록을 확인할 수 있다
 
-## 도커 엔진 (Docker engine)
-도커의 핵심으로 컨테이너를 생성하고 실행하는 클라이언트 - 서버 기술이다. 도커 엔진에는 백그라운드에서 지속적으로 실행되고 있는 프로세스인 도커 데몬과, 도커 API, 명령줄 인터페이스 등을 포함한다.
+### 도커 엔진 (Docker engine)
+도커의 핵심으로 컨테이너를 생성하고 실행하는 클라이언트 - 서버 기술이다. 도커 엔진에는 백그라운드에서 지속적으로 실행되고 있는 프로세스인 도커 데몬과, 도커 API, 도커 CLI 등을 포함한다.
 
 <img width="450" alt="스크린샷 2021-10-20 오후 6 31 18" src="https://user-images.githubusercontent.com/80696862/138067765-eb86e0ca-38e5-4971-b2f8-d08296a94b13.png">
 
@@ -103,7 +103,7 @@
     - 이러한 환경을 애플리케이션 컨테이너라고 부른다
 <br>
 
-**기존의 가상화 기술들은 하드웨어 환경을 가상화하는데 비해 컨테이너 방식은 OS에서 관리되기 때문에 “OS 레벨의 가상화”라고도 불린다.**
+**기존의 가상화 기술들은 하드웨어 환경을 가상화하는데 비해 컨테이너 방식은 OS에서 관리되기 때문에 “OS 수준의 가상화”라고도 불린다.**
 <br>
 <img width="900" alt="스크린샷 2021-10-20 오후 12 05 43" src="https://user-images.githubusercontent.com/80696862/138021633-85832a66-a76d-4599-847c-17e0c351131d.png">
 
@@ -144,18 +144,32 @@
     - Go언어로 제작됨
 
 **2. Cgroup(컨트롤 그룹)**
-PU 시간, 시스템 메모리, 네트워크 대역폭과 같은 자원이나 이러한 자원의 조합을 시스템에서 실행 중인 사용자 정의 작업 그룹(프로세스) 간에 할당하는 리눅스 커널 기술
+CPU, 시스템 메모리, 네트워크 대역폭과 같은 자원이나 이러한 자원의 조합을 시스템에서 실행 중인 사용자 정의 작업 그룹(프로세스) 간에 할당하는 리눅스 커널 기술
 
 - 호스트 OS가 관리하는 여러 자원을 중앙에서 제어하기 위한 도구
 - cgroup을 사용하여 시스템 관리자는 시스템 자원 할당, 우선 순위 지정, 거부, 관리, 모니터링과 같은 세밀한 제어 가능
 - 하드웨어 자원은 작업 및 사용자 간을 신속하게 분배하여 전체적인 효율성을 향상
+- 자원 사용량이 많은 애플리케이션을 cgroup에 넣어 자원 사용량 제한도 가능
+
+<img width="440" alt="스크린샷 2021-10-20 오후 12 05 43" src="https://media.vlpt.us/images/shlee7131/post/25dcfb77-1beb-4025-89c0-8160c73ed8bd/image.png">
 
 **3. namespaces**
 - 시스템 자원을 해당 프로세스의 전용 자원처럼 보이게 하고, 다른 프로세스와 격리시키는 기술
+- 프로세스간 격리된 환경을 제공하는 경량 프로세스 가상화 기술
 
-**아래 사진처럼 도커 엔진은 리눅스의 커널을 사용중이다**
+<img width="440" alt="스크린샷 2021-10-20 오후 12 05 43" src="https://media.vlpt.us/images/shlee7131/post/b03ff253-57d6-4c38-9efc-2503818ece64/image.png">
+
+### 내 컴퓨터는 macOS인데 어떻게 설치도 안한 리눅스를 사용하는가?
+
+Cgroup과 namespaces 기능은 Linux 커널의 기능인데 내 컴퓨터의 OS는 mac이다. 그런데 어떻게 Linux 커널의 기능을 사용할 수 있을까? 위에서 설명했듯이 도커는 **libcontainer**를 통해 리눅스 커널의 기능들을 이용한다. 하지만 이것을 사용하려면 리눅스 커널이 존재해야 한다. 그렇다면 리눅스 OS는 어디에 설치되어있을까?
+
+도커는 어떤 운영체제든 리눅스 VM 위의 리눅스 커널을 통해 동작한다. 그래서 도커에서도 Cgroup과 namespaces 기능을 사용할 수 있는 것이다. 도커를 설치하면 같이 리눅스 VM도 설치된다.
+
+**docker version 명령어를 통해 도커 엔진의 OS를 확인할 수 있다**
 
 <img width="600" alt="스크린샷 2021-10-20 오후 7 35 58" src="https://user-images.githubusercontent.com/80696862/138077912-647f0d5f-b470-4c40-bb09-c00603e242c5.png">
+
+### 리눅스 컨테이너와 도커와의 차이점
 
 <img width="650" alt="스크린샷 2021-10-20 오후 12 05 43" src="https://www.redhat.com/cms/managed-files/traditional-linux-containers-vs-docker_0.png">
 
@@ -177,3 +191,43 @@ ___
 - [Docker 그리고 Linux 컨테이너 기술들](http://www.opennaru.com/openshift/container/what-is-the-difference-between-docker-lxd-and-lxc/)
 - [도커 컨테이너는 가상머신인가요? 프로세스인가요?](https://www.44bits.io/ko/post/is-docker-container-a-virtual-machine-or-a-process)
 - [1. Docker 가상화 서버 개념 (리눅스용)](https://doitnow-man.tistory.com/180)
+- [Linux) Doker와 Container의 탄생과 설명, 차이점](https://hwan-shell.tistory.com/116)
+                
+
+
+SELECT a,
+CASE 
+    WHEN a = 1 THEN '남자'
+    WHEN a = 2 THEN '여자'
+    ELSE '미지정'
+END AS '성별'
+FROM sample37;
+
+SELECT name,
+CASE 
+    WHEN quantity > 5 THEN (
+        CASE
+            WHEN name = 'A' THEN '큰 A!'
+        END as '결과2'
+    )
+END AS '결과' 
+FROM sample51;
+
+
+
+UPDATE easy_drinks
+SET amount1 = 
+CASE 
+    WHEN main = 'soda' THEN amount1 + 1
+END;
+
+
+UPDATE easy_drinks
+SET amount1 = 
+CASE
+    WHEN main = 'iced tea' THEN (
+        CASE 
+            WHEN amount1 IS NULL THEN 10
+        END
+    )
+END;
