@@ -48,7 +48,7 @@
 도커 객체는 이미지, 컨테이너, 네트워크, 볼륨, 플러그인 등 도커를 구성하는 요소들을 말한다.
 
 ### 도커 이미지 (Docker images)
-도커 이미지는 도커 컨테이너를 생성하는 방법이 포함된 읽기 전용 템플릿이다.
+도커 이미지는 도커 컨테이너를 생성하는데 필요한 파일과 설정값 등이 포함되어 있는 읽기전용 템플릿이다. 상태값을 갖지 않고 불변이다. 동일 이미지로 여러 개의 컨테이너를 실행할 수 있지만, 컨테이너의 상태가 바뀌거나 컨테이너가 삭제되더라도 이미지는 변하지 않고 그대로이다
 
 ### 도커 컨테이너 (Docker container)
 도커 컨테이너는 도커 이미지의 인스턴스이다.
@@ -173,7 +173,78 @@ Cgroup과 namespaces 기능은 Linux 커널의 기능인데 내 컴퓨터의 OS�
 
 <img width="650" alt="스크린샷 2021-10-20 오후 12 05 43" src="https://www.redhat.com/cms/managed-files/traditional-linux-containers-vs-docker_0.png">
 
-# 3. 도커 클라이언트 명령어
+# 3. 도커 컨테이너와 생명 주기
+## 3-1. 이미지로 컨테이너 만들기
+> docker run 이미지명
+
+- **docker run 명령어 진행 순서**
+    1. 도커 클라이언트가 명령어를 도커 데몬에 요청
+    2. 도커 데몬이 해당 이미지명과 일치하는 이미지가 캐시되어 있는지 확인
+    3. 없다면 도커 허브에서 해당 이미지를 pull하고, 있으면 컨테이너로 생성
+
+### 도커 이미지가 저장되는 장소
+
+## 3-2. 컨테이너의 생명 주기
+### 컨테이너를 실행하는 과정
+<img width="800" alt="스크린샷 2021-10-26 오후 5 52 36" src="https://user-images.githubusercontent.com/80696862/138844899-a01ea7e2-9284-44cb-86af-c26b44887833.png">
+
+1. 도커 컨테이너를 생성(create)한 후 
+    - docker create 이미지명
+2. 도커 컨테이너를 시작(start)한다
+    - docker start -a 컨테이너ID
+
+### 컨테이너를 중지하는 과정
+<img width="470" alt="스크린샷 2021-10-26 오후 5 52 17" src="https://user-images.githubusercontent.com/80696862/138844670-a7305126-a444-483e-ac78-dc5a1cbfd981.png">
+
+**도커 컨테이너를 중지시키는 방법은 두 가지가 있다**
+1. **stop**
+    - 컨테이너를 graceful하게 중지시킨다
+    - 기존에 하던 작업들을 모두 수행하고 컨테이너를 중지시킨다 (마음의? 정리 시간을 준다)
+2. **kill**
+    - kill 명령 즉시 해당 컨테이너를 중지시킨다
+
+### 컨테이너를 삭제하는 과정
+<img width="500" alt="스크린샷 2021-10-26 오후 5 51 24" src="https://user-images.githubusercontent.com/80696862/138844549-6d55d6a3-64f4-452b-9566-d5f3931583c0.png">
+
+- 실행중인 컨테이너를 삭제하려면 우선 해당 컨테이너를 중지시켜야 한다
+- **docker ps** 명령어로 실행중인 컨테이너들을 우선 중지시켜준다
+
+#### 중지된 컨테이너 삭제하기
+> docker rm 아이디/이름
+
+#### 모든 컨테이너 삭제하기
+> docker rm `docker ps -a -q`
+
+#### 이미지 삭제하기
+> docker rmi 이미지ID
+
+#### 사용하지 않는 리소스 일괄 삭제하기
+> docker system prune [OPTIONS]
+- 도커를 정리하고 싶을 때 사용
+- 하지만 이미 실행중인 컨테이너에게는 영향을 주지 않는다
+
+## 3-3. 실행중인 컨테이너에 명령어 전달하기
+### 레디스 컨테이너에 명령어 전달하기
+#### 1. 레디스 컨테이너 실행하기
+> docker run redis
+
+#### 2, 레디스 CLI 접속하기
+> redis-cli
+- 터미널에서 위의 명령어를 입력하면 에러가 발생한다
+- 왜냐하면 터미널은 레디스 컨테이너 외부에 존재하기 때문이다
+- 따라서 터미널에서 입력하는 명령어를 컨테이너 내부로 전달해야 한다
+- 이 때 사용되는 옵션이 **exec**이다
+    - 이미 실행중인 컨테이너에 명령어를 전달할 때 사용되는 명령어
+    - exec과 함께 **-it**도 붙여주어야 함
+        - -it는
+            - **i** : iteractive, 상호적인
+            - **t** : terminal
+            - -it 옵션이 없으면 redis-cli를 키기만 하고 바로 빠져나와 사용하지 못한다
+
+> docker exec -it 컨테이너ID redis-cli
+
+docker ps로 레디스의 컨테이너 아이디를 확인한 후 명령어를 전달한다
+
 
 # 4. 도커 이미지 만들기
 
@@ -192,42 +263,3 @@ ___
 - [도커 컨테이너는 가상머신인가요? 프로세스인가요?](https://www.44bits.io/ko/post/is-docker-container-a-virtual-machine-or-a-process)
 - [1. Docker 가상화 서버 개념 (리눅스용)](https://doitnow-man.tistory.com/180)
 - [Linux) Doker와 Container의 탄생과 설명, 차이점](https://hwan-shell.tistory.com/116)
-                
-
-
-SELECT a,
-CASE 
-    WHEN a = 1 THEN '남자'
-    WHEN a = 2 THEN '여자'
-    ELSE '미지정'
-END AS '성별'
-FROM sample37;
-
-SELECT name,
-CASE 
-    WHEN quantity > 5 THEN (
-        CASE
-            WHEN name = 'A' THEN '큰 A!'
-        END as '결과2'
-    )
-END AS '결과' 
-FROM sample51;
-
-
-
-UPDATE easy_drinks
-SET amount1 = 
-CASE 
-    WHEN main = 'soda' THEN amount1 + 1
-END;
-
-
-UPDATE easy_drinks
-SET amount1 = 
-CASE
-    WHEN main = 'iced tea' THEN (
-        CASE 
-            WHEN amount1 IS NULL THEN 10
-        END
-    )
-END;
